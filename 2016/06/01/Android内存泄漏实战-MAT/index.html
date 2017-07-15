@@ -1,0 +1,680 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android,Android Studio,MAT,内存泄漏," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="本文是实际项目中的真实案例，部分截图中马赛克了包名信息
+
+起因日常coding的过程中，一般很少会特意的去做内存泄漏的检查。项目上线后，出现了一个bug，经过调查发现，某个Activity中的成员变量被重置成了初始值，检查完所有代码后得出结论，是由于某种情况下的内存回收导致的重置。但内存回收的原因一直没有查明，之前一直认为是低配置的手机的问题，直到高配的手机也出现这个问题后，我考虑到可能是由于内">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android内存泄漏实战-MAT">
+<meta property="og:url" content="http://yoursite.com/2016/06/01/Android内存泄漏实战-MAT/index.html">
+<meta property="og:site_name" content="Huaxiao's Blog">
+<meta property="og:description" content="本文是实际项目中的真实案例，部分截图中马赛克了包名信息
+
+起因日常coding的过程中，一般很少会特意的去做内存泄漏的检查。项目上线后，出现了一个bug，经过调查发现，某个Activity中的成员变量被重置成了初始值，检查完所有代码后得出结论，是由于某种情况下的内存回收导致的重置。但内存回收的原因一直没有查明，之前一直认为是低配置的手机的问题，直到高配的手机也出现这个问题后，我考虑到可能是由于内">
+<meta property="og:image" content="http://7xuvhf.com1.z0.glb.clouddn.com/knowledgepointactivity_list.png">
+<meta property="og:image" content="http://7xuvhf.com1.z0.glb.clouddn.com/mBtnList.png">
+<meta property="og:image" content="http://7xuvhf.com1.z0.glb.clouddn.com/knowledgepointactivity_success.png">
+<meta property="og:image" content="http://7xuvhf.com1.z0.glb.clouddn.com/mOwningView.png">
+<meta property="og:updated_time" content="2017-02-12T13:54:21.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android内存泄漏实战-MAT">
+<meta name="twitter:description" content="本文是实际项目中的真实案例，部分截图中马赛克了包名信息
+
+起因日常coding的过程中，一般很少会特意的去做内存泄漏的检查。项目上线后，出现了一个bug，经过调查发现，某个Activity中的成员变量被重置成了初始值，检查完所有代码后得出结论，是由于某种情况下的内存回收导致的重置。但内存回收的原因一直没有查明，之前一直认为是低配置的手机的问题，直到高配的手机也出现这个问题后，我考虑到可能是由于内">
+<meta name="twitter:image" content="http://7xuvhf.com1.z0.glb.clouddn.com/knowledgepointactivity_list.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Android内存泄漏实战-MAT | Huaxiao's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Huaxiao's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">Huaxiao's Blog</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Android内存泄漏实战-MAT
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-06-01T11:03:28+08:00" content="2016-06-01">
+              2016-06-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/06/01/Android内存泄漏实战-MAT/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/01/Android内存泄漏实战-MAT/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>本文是实际项目中的真实案例，部分截图中马赛克了包名信息</p>
+</blockquote>
+<h1 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h1><p>日常coding的过程中，一般很少会特意的去做内存泄漏的检查。项目上线后，出现了一个bug，经过调查发现，某个Activity中的成员变量被重置成了初始值，检查完所有代码后得出结论，是由于某种情况下的内存回收导致的重置。但内存回收的原因一直没有查明，之前一直认为是低配置的手机的问题，直到高配的手机也出现这个问题后，我考虑到可能是由于内存泄漏引起的Activity回收。</p>
+<h1 id="工具选择"><a href="#工具选择" class="headerlink" title="工具选择"></a>工具选择</h1><p>有以下三种工具供我们选择，排查代码中出现的内存泄漏问题。</p>
+<ul>
+<li><strong>MAT</strong> ：Memory Analyzer Tool，一个基于Eclipse的内存分析工具，是一个快速、功能丰富的JAVA heap分析工具。有独立使用的版本（<a href="http://www.eclipse.org/mat/" target="_blank" rel="external">下载地址</a>）。</li>
+<li><strong>Android Studio</strong> ：Android Studio 1.1及更高的版本，内置了内存泄漏检测的工具。</li>
+<li><strong>LeakCanary</strong> ：Square开源的内存泄漏检查库，可以直接集成到代码中。（<a href="https://github.com/square/leakcanary" target="_blank" rel="external">Github地址</a>）</li>
+</ul>
+<p>如果不知道那个页面出现内存泄漏，可以直接集成LeakCanary，将App跑一遍，LeakCanary会自动通知你哪里出现了内存泄漏，非常方便。如果确定了某个页面出现问题，想详细查询内存泄漏的相关信息的话，还是建议使用MAT工具来分析，MAT能给出非常全面且直观的数据。<br>最终，我决定使用Android Studio和MAT来分析内存泄漏问题。</p>
+<h1 id="使用Android-Studio导出MAT所能识别的hprof文件"><a href="#使用Android-Studio导出MAT所能识别的hprof文件" class="headerlink" title="使用Android Studio导出MAT所能识别的hprof文件"></a>使用Android Studio导出MAT所能识别的hprof文件</h1><ul>
+<li>打开Android Monitor中的Monitors标签，我们可以实时监控到App的Memory、CPU、NetWork、GPU使用状态。</li>
+<li><p>打开App中出现内存泄漏问题的页面（比如我的项目中是KnowledgePointActivity），退出该页面，然后在Memory中点击“Initiate GC”，手动执行GC操作。</p>
+<blockquote>
+<p><strong>提示：</strong>这里的手动GC操作不能省，否则会导致有错误数据误导你，后面会有实例展示这个“坑”。</p>
+</blockquote>
+</li>
+<li><p>反复执行上述操作几遍。</p>
+</li>
+<li>点击“Dump Java Heap”，Android Studio（下称AS）会自动生成hprof文件，并自带的内存泄漏分析。顺便讲一下，AS自带的内存泄漏分析也非常方便，能自动分析哪个页面出现内存泄漏问题。只需要点击“Analyzer Tasks”页签中的“Perform Analysis”按钮即可。</li>
+<li>AS自动生成的hprof并不能被MAT识别，需要做一次转换。在“Captures”页签中可以找到我们生成的hprof文件，右键该文件，点击“Export to standard .hprof”，就可以生成MAT能识别的文件了。</li>
+</ul>
+<h1 id="使用MAT分析内存泄漏"><a href="#使用MAT分析内存泄漏" class="headerlink" title="使用MAT分析内存泄漏"></a>使用MAT分析内存泄漏</h1><p>第一次打开hprof文件会有一些初始化操作，只要按照默认配置下一步即可。<br>生成报告后，打开OverView界面，并点击“Histogram”（列出内存中的对象，对象的个数以及大小），从这些对象中寻找我们想找到的内存泄漏路径。<br>有如下两种方法进行定位：</p>
+<h2 id="方法一：使用OQL执行语句查询"><a href="#方法一：使用OQL执行语句查询" class="headerlink" title="方法一：使用OQL执行语句查询"></a>方法一：使用OQL执行语句查询</h2><ul>
+<li>点击“OQL”图标。</li>
+<li>在窗口输入<code>select * from instanceof android.app.Activity</code>，然后点击“!”按钮。</li>
+</ul>
+<h2 id="方法二：Histgram中进行逐步筛选"><a href="#方法二：Histgram中进行逐步筛选" class="headerlink" title="方法二：Histgram中进行逐步筛选"></a>方法二：Histgram中进行逐步筛选</h2><ul>
+<li>打开Histgram页面，第一行我们可以通过正则表达式来查到我们想定位的类（如输入“Activity”，则可以筛选出所有的Activity）</li>
+<li>找到我们的指定页面（本文中是KnowledgePointActivity），右键选择List objects → with incoming reference</li>
+</ul>
+<p>通过上述两种方法，我们就能找到该页面下所有没有被回收的对象。如下图所示：</p>
+<p><img src="http://7xuvhf.com1.z0.glb.clouddn.com/knowledgepointactivity_list.png" alt=""></p>
+<p>选择其中任意一条记录，右键选择Path to GC Roots → exclude weak/soft references，新页面中展示的是列出所有强引用的GC Roots结点，这里就能很直观的发现是哪里强引用了Activity对象，导致无法回收。</p>
+<p>如下图所示，mBtnList对象强持有了Activity的引用。<br><img src="http://7xuvhf.com1.z0.glb.clouddn.com/mBtnList.png" alt=""></p>
+<h1 id="回归代码中发现问题"><a href="#回归代码中发现问题" class="headerlink" title="回归代码中发现问题"></a>回归代码中发现问题</h1><p>那么上面我们找到的mBtnList具体为什么会强持有Activity的引用呢？<br>检查代码后发现，该对象的相关代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> ArrayList&lt;HashMap&lt;String, Object&gt;&gt; mBtnList;</div><div class="line"></div><div class="line">HashMap&lt;String, Object&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</div><div class="line">map.put(<span class="string">"type"</span>, <span class="string">"string"</span>);</div><div class="line">map.put(<span class="string">"view"</span>, (View) child);</div><div class="line">mBtnList.add(map);</div></pre></td></tr></table></figure></p>
+<p>我这里错误的将持有Activity引用的View对象加入了一个static的对象中，这样就直接导致了在Activity销毁时无法完成对该对象的回收。</p>
+<p>这里将mBtnList改为非静态的对象即可解决问题，修改完后再重新执行上述步骤，检查内存泄漏，发现问题已经成功解决了。</p>
+<p><img src="http://7xuvhf.com1.z0.glb.clouddn.com/knowledgepointactivity_success.png" alt=""></p>
+<blockquote>
+<p><strong>提示：</strong>静态有风险，使用需谨慎。</p>
+</blockquote>
+<h1 id="内存泄漏检查过程中可能出现的“坑”"><a href="#内存泄漏检查过程中可能出现的“坑”" class="headerlink" title="内存泄漏检查过程中可能出现的“坑”"></a>内存泄漏检查过程中可能出现的“坑”</h1><ul>
+<li>在生成hprof文件时，如果没有手动执行GC操作，会产生一些“错误”的数据误导你，如下图：</li>
+</ul>
+<p><img src="http://7xuvhf.com1.z0.glb.clouddn.com/mOwningView.png" alt=""></p>
+<p>理论上，运行10遍Activity，如果不执行GC操作，就会有10个上图中的对象出现，这些对象（虚引用的对象？）在GC时会被销毁，不属于内存泄漏的范畴。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag">#Android</a>
+          
+            <a href="/tags/Android-Studio/" rel="tag">#Android Studio</a>
+          
+            <a href="/tags/MAT/" rel="tag">#MAT</a>
+          
+            <a href="/tags/内存泄漏/" rel="tag">#内存泄漏</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/04/Android-Studio-多渠道打包中针对不同渠道不同应用名称的处理方法/" rel="next" title="Android Studio 多渠道打包中针对不同渠道不同应用名称的处理方法">
+                <i class="fa fa-chevron-left"></i> Android Studio 多渠道打包中针对不同渠道不同应用名称的处理方法
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/25/Android实现可多App共享的公共模块的架构/" rel="prev" title="Android实现可多App共享的公共模块的架构">
+                Android实现可多App共享的公共模块的架构 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/06/01/Android内存泄漏实战-MAT/"
+           data-title="Android内存泄漏实战-MAT" data-url="http://yoursite.com/2016/06/01/Android内存泄漏实战-MAT/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Huaxiao" />
+          <p class="site-author-name" itemprop="name">Huaxiao</p>
+          <p class="site-description motion-element" itemprop="description">Huaxiao's Blog</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起因"><span class="nav-number">1.</span> <span class="nav-text">起因</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#工具选择"><span class="nav-number">2.</span> <span class="nav-text">工具选择</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用Android-Studio导出MAT所能识别的hprof文件"><span class="nav-number">3.</span> <span class="nav-text">使用Android Studio导出MAT所能识别的hprof文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用MAT分析内存泄漏"><span class="nav-number">4.</span> <span class="nav-text">使用MAT分析内存泄漏</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#方法一：使用OQL执行语句查询"><span class="nav-number">4.1.</span> <span class="nav-text">方法一：使用OQL执行语句查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法二：Histgram中进行逐步筛选"><span class="nav-number">4.2.</span> <span class="nav-text">方法二：Histgram中进行逐步筛选</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#回归代码中发现问题"><span class="nav-number">5.</span> <span class="nav-text">回归代码中发现问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内存泄漏检查过程中可能出现的“坑”"><span class="nav-number">6.</span> <span class="nav-text">内存泄漏检查过程中可能出现的“坑”</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Huaxiao</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"huaxiaos"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>
