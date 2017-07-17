@@ -1,0 +1,678 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android,Builder模式," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="版权声明：本文为作者原创，转载请注明出处。
+
+前言众所周知，Builder模式在Android中有着广泛的应用，是一个非常重要的设计模式。然而在实际开发过程中，我一直有这样一个疑问：链式调用貌似也能实现Builder模式所完成的功能，那么为何不简单的使用链式调用来实现呢？
+
+为尽快切入正题，概念相关的介绍在本文的最后部分
+
+AlertDialogAlertDialog是Android源码中使用B">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Builder模式与链式调用">
+<meta property="og:url" content="http://yoursite.com/2017/07/17/Builder模式与链式调用/index.html">
+<meta property="og:site_name" content="Huaxiao's Blog">
+<meta property="og:description" content="版权声明：本文为作者原创，转载请注明出处。
+
+前言众所周知，Builder模式在Android中有着广泛的应用，是一个非常重要的设计模式。然而在实际开发过程中，我一直有这样一个疑问：链式调用貌似也能实现Builder模式所完成的功能，那么为何不简单的使用链式调用来实现呢？
+
+为尽快切入正题，概念相关的介绍在本文的最后部分
+
+AlertDialogAlertDialog是Android源码中使用B">
+<meta property="og:updated_time" content="2017-07-17T12:21:28.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Builder模式与链式调用">
+<meta name="twitter:description" content="版权声明：本文为作者原创，转载请注明出处。
+
+前言众所周知，Builder模式在Android中有着广泛的应用，是一个非常重要的设计模式。然而在实际开发过程中，我一直有这样一个疑问：链式调用貌似也能实现Builder模式所完成的功能，那么为何不简单的使用链式调用来实现呢？
+
+为尽快切入正题，概念相关的介绍在本文的最后部分
+
+AlertDialogAlertDialog是Android源码中使用B">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Builder模式与链式调用 | Huaxiao's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Huaxiao's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">Huaxiao's Blog</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Builder模式与链式调用
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-07-17T20:20:20+08:00" content="2017-07-17">
+              2017-07-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/07/17/Builder模式与链式调用/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/07/17/Builder模式与链式调用/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>版权声明：本文为作者原创，转载请注明出处。</p>
+</blockquote>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>众所周知，Builder模式在Android中有着广泛的应用，是一个非常重要的设计模式。然而在实际开发过程中，我一直有这样一个疑问：链式调用貌似也能实现Builder模式所完成的功能，那么为何不简单的使用链式调用来实现呢？</p>
+<blockquote>
+<p>为尽快切入正题，概念相关的介绍在本文的最后部分</p>
+</blockquote>
+<h1 id="AlertDialog"><a href="#AlertDialog" class="headerlink" title="AlertDialog"></a>AlertDialog</h1><p>AlertDialog是Android源码中使用Builder模式的经典案例，本文将从AlertDialog入手来进行分析。</p>
+<p>AlertDialog的常规使用如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">AlertDialog alertDialog = new AlertDialog.Builder(this)</div><div class="line">    .setTitle(title)</div><div class="line">    .setMessage(msg)</div><div class="line">    .setCancelable(false)</div><div class="line">    .setPositiveButton(btn,</div><div class="line">            new DialogInterface.OnClickListener() &#123;</div><div class="line">                @Override</div><div class="line">                public void onClick(final DialogInterface dialog, int which) &#123;</div><div class="line">                    dialog.dismiss();</div><div class="line">                &#125;</div><div class="line">            &#125;).show();</div></pre></td></tr></table></figure></p>
+<p>很明显是一个标准的链式调用，那么问题来了，我能否去掉Builder，而直接new对象来实现呢？类似如下代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">AlertDialog alertDialog = new AlertDialog(this)</div><div class="line">    .setTitle(title)</div><div class="line">    .setMessage(msg)</div><div class="line">    .setCancelable(false)</div><div class="line">    .setPositiveButton(btn,</div><div class="line">            new DialogInterface.OnClickListener() &#123;</div><div class="line">                @Override</div><div class="line">                public void onClick(final DialogInterface dialog, int which) &#123;</div><div class="line">                    dialog.dismiss();</div><div class="line">                &#125;</div><div class="line">            &#125;).show();</div></pre></td></tr></table></figure></p>
+<p>请继续看下面的分析</p>
+<h1 id="AlertDialog源码"><a href="#AlertDialog源码" class="headerlink" title="AlertDialog源码"></a>AlertDialog源码</h1><p>首先看一下show方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Creates an &#123;@link AlertDialog&#125; with the arguments supplied to this</div><div class="line"> * builder and immediately displays the dialog.</div><div class="line"> * &lt;p&gt;</div><div class="line"> * Calling this method is functionally identical to:</div><div class="line"> * &lt;pre&gt;</div><div class="line"> *     AlertDialog dialog = builder.create();</div><div class="line"> *     dialog.show();</div><div class="line"> * &lt;/pre&gt;</div><div class="line"> */</div><div class="line">public AlertDialog show() &#123;</div><div class="line">    final AlertDialog dialog = create();</div><div class="line">    dialog.show();</div><div class="line">    return dialog;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看出，AlertDialog对象是通过create()方法来生成的。我们再来看下create()方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Creates an &#123;@link AlertDialog&#125; with the arguments supplied to this</div><div class="line"> * builder.</div><div class="line"> * &lt;p&gt;</div><div class="line"> * Calling this method does not display the dialog. If no additional</div><div class="line"> * processing is needed, &#123;@link #show()&#125; may be called instead to both</div><div class="line"> * create and display the dialog.</div><div class="line"> */</div><div class="line">public AlertDialog create() &#123;</div><div class="line">    // Context has already been wrapped with the appropriate theme.</div><div class="line">    final AlertDialog dialog = new AlertDialog(P.mContext, 0, false);</div><div class="line">    P.apply(dialog.mAlert);</div><div class="line">    dialog.setCancelable(P.mCancelable);</div><div class="line">    if (P.mCancelable) &#123;</div><div class="line">        dialog.setCanceledOnTouchOutside(true);</div><div class="line">    &#125;</div><div class="line">    dialog.setOnCancelListener(P.mOnCancelListener);</div><div class="line">    dialog.setOnDismissListener(P.mOnDismissListener);</div><div class="line">    if (P.mOnKeyListener != null) &#123;</div><div class="line">        dialog.setOnKeyListener(P.mOnKeyListener);</div><div class="line">    &#125;</div><div class="line">    return dialog;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>从中可以看出，在构建AlertDialog时，create()方法中做了大量的工作，如设置默认值、设置监听等等。create()方法控制着AlertDialog对象的产出结果。</p>
+<p>show()和create()均是AlertDialog.Builder类中的方法，源码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line">public static class Builder &#123;</div><div class="line">    // 省略了注释，省略了诸多set方法</div><div class="line">    private final AlertController.AlertParams P;</div><div class="line"></div><div class="line">    public Builder(Context context) &#123;</div><div class="line">        this(context, resolveDialogTheme(context, 0));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public Builder(Context context, int themeResId) &#123;</div><div class="line">        P = new AlertController.AlertParams(new ContextThemeWrapper(</div><div class="line">                context, resolveDialogTheme(context, themeResId)));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public Context getContext() &#123;</div><div class="line">        return P.mContext;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public Builder setTitle(@StringRes int titleId) &#123;</div><div class="line">        P.mTitle = P.mContext.getText(titleId);</div><div class="line">        return this;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public Builder setTitle(CharSequence title) &#123;</div><div class="line">        P.mTitle = title;</div><div class="line">        return this;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public AlertDialog create() &#123;</div><div class="line">        // Context has already been wrapped with the appropriate theme.</div><div class="line">        final AlertDialog dialog = new AlertDialog(P.mContext, 0, false);</div><div class="line">        P.apply(dialog.mAlert);</div><div class="line">        dialog.setCancelable(P.mCancelable);</div><div class="line">        if (P.mCancelable) &#123;</div><div class="line">            dialog.setCanceledOnTouchOutside(true);</div><div class="line">        &#125;</div><div class="line">        dialog.setOnCancelListener(P.mOnCancelListener);</div><div class="line">        dialog.setOnDismissListener(P.mOnDismissListener);</div><div class="line">        if (P.mOnKeyListener != null) &#123;</div><div class="line">            dialog.setOnKeyListener(P.mOnKeyListener);</div><div class="line">        &#125;</div><div class="line">        return dialog;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public AlertDialog show() &#123;</div><div class="line">        final AlertDialog dialog = create();</div><div class="line">        dialog.show();</div><div class="line">        return dialog;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="create-方法的必要性"><a href="#create-方法的必要性" class="headerlink" title="create()方法的必要性"></a>create()方法的必要性</h1><p>从上面的分析可以看出，核心方法是create()方法，那么我们能否将create()方法中的执行代码全部放在show()方法中实现呢？或者保留create()方法，但是将Builder类去掉，create()和show()移至AlertDialog类中执行呢？</p>
+<p>结论是否定的。</p>
+<p>即使某种意义上说，去掉了Builder，移动了方法也是能运行的。但这就与AlertDialog，甚至是Builder模式本身的思想背道而驰了。</p>
+<p>抽象一下，create()就好比是“生产制造”步骤，而show()好比是“使用体验”步骤，两者显然是相对较独立的方法，当业务逻辑特别复杂时，将“生产”与“使用”分离开来，就显得尤为重要，既增加了代码的可读性，也增加了代码的可扩展性。</p>
+<p>更重要的是，Builder.create()本身是对对象构建的一种“约束”，不对外暴露产品细节，用户可以按需构建，同时，用户也可以通过修改“约束”本身来控制对象的构建结果。</p>
+<h1 id="与实际相结合"><a href="#与实际相结合" class="headerlink" title="与实际相结合"></a>与实际相结合</h1><p>既然Builder模式有这么多的好处，又增加了可扩展性等等，并且读过《Effective Java》的朋友可能知道里面有这样一段建议</p>
+<blockquote>
+<p>当你有需要三个以上的构造参数时，使用 Builder 去构造这个对象。写起来可能有点啰嗦但是这样伸缩性和可读性都很好</p>
+</blockquote>
+<p>那么，是不是优先使用Builder模式来完成对象的构建呢？结论也是否定的。</p>
+<p>设计模式的使用一定要与实际场景相结合，否则就是过度设计。</p>
+<p>当你的使用场景满足如下条件时，可以使用Builder模式</p>
+<ul>
+<li>相同的方法，不同的执行顺序，产生不同的事件结果；或者方法的调用顺序不同也会产生了不同的作用</li>
+<li>多个部件或零件，都可以装配到同一个对象中，但是产生的运行结果又不相同</li>
+<li>需要初始化一个对象特别复杂的对象，这个对象有很多参数，且有默认值</li>
+<li></li>
+</ul>
+<p>总之一点，当你的实际场景尤其复杂时，Builder模式是你的正确选择之一。</p>
+<p>除此之外，简单的实现一个链式调用（或者普通的对象构造）是最好的方案。</p>
+<h1 id="相关概念介绍"><a href="#相关概念介绍" class="headerlink" title="相关概念介绍"></a>相关概念介绍</h1><h2 id="Builder模式"><a href="#Builder模式" class="headerlink" title="Builder模式"></a>Builder模式</h2><p>将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示</p>
+<h2 id="链式调用"><a href="#链式调用" class="headerlink" title="链式调用"></a>链式调用</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">public class MsgInfo &#123;</div><div class="line"></div><div class="line">    private long msgId;</div><div class="line">    private String type;</div><div class="line"></div><div class="line">    pulic MsgInfo() &#123;</div><div class="line">        </div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    public MsgInfo setMsgId(long msgId) &#123;</div><div class="line">        this.msgId = msgId;</div><div class="line">        return this;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    public MsgInfo setType(String type) &#123;</div><div class="line">        this.type = type;</div><div class="line">        return this;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    public void show() &#123;</div><div class="line">        // do something</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">MsgInfo msgInfo = new MsgInfo().setMsgId(99).setType(&quot;A&quot;).show();</div></pre></td></tr></table></figure>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="https://juejin.im/post/58f630a544d904006c0eedc9" target="_blank" rel="external">https://juejin.im/post/58f630a544d904006c0eedc9</a></li>
+<li><a href="http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2013/0527/1299.html" target="_blank" rel="external">http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2013/0527/1299.html</a></li>
+<li><a href="http://www.jianshu.com/p/cb9cd6a8dd51" target="_blank" rel="external">http://www.jianshu.com/p/cb9cd6a8dd51</a></li>
+<li>《Effective Java》</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag">#Android</a>
+          
+            <a href="/tags/Builder模式/" rel="tag">#Builder模式</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/15/小型创业团队MVP框架实现的新思路/" rel="next" title="小型创业团队MVP框架实现的新思路">
+                <i class="fa fa-chevron-left"></i> 小型创业团队MVP框架实现的新思路
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/07/17/Builder模式与链式调用/"
+           data-title="Builder模式与链式调用" data-url="http://yoursite.com/2017/07/17/Builder模式与链式调用/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Huaxiao" />
+          <p class="site-author-name" itemprop="name">Huaxiao</p>
+          <p class="site-description motion-element" itemprop="description">Huaxiao's Blog</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AlertDialog"><span class="nav-number">2.</span> <span class="nav-text">AlertDialog</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AlertDialog源码"><span class="nav-number">3.</span> <span class="nav-text">AlertDialog源码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#create-方法的必要性"><span class="nav-number">4.</span> <span class="nav-text">create()方法的必要性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#与实际相结合"><span class="nav-number">5.</span> <span class="nav-text">与实际相结合</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#相关概念介绍"><span class="nav-number">6.</span> <span class="nav-text">相关概念介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Builder模式"><span class="nav-number">6.1.</span> <span class="nav-text">Builder模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#链式调用"><span class="nav-number">6.2.</span> <span class="nav-text">链式调用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Huaxiao</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"huaxiaos"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>
