@@ -64,7 +64,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Android,replaceFirst,PatternSyntaxException," />
+  <meta name="keywords" content="Hexo, NexT" />
 
 
 
@@ -80,22 +80,16 @@
 
 
 
-<meta name="description" content="前言使用replaceFirst方法时，出现java.util.regex.PatternSyntaxException错误
-问题原因这个问题起初困扰了我很久，最后经过分析发现使用replaceFirst替换的字符串中，有一个不完整的”(“，然后猜想不会是因为正则表达式的某种原因造成的吧。通过查看replaceFirst的源代码，终于发现了问题的根源：replaceFirst使用了正则表达式
-re">
+<meta name="description" content="Huaxiao&apos;s Blog">
 <meta property="og:type" content="article">
-<meta property="og:title" content="replaceFirst与java.util.regex.PatternSyntaxException">
-<meta property="og:url" content="http://yoursite.com/2017/07/15/replaceFirst与java-util-regex-PatternSyntaxException/index.html">
+<meta property="og:title" content="ScrollView嵌套两个及以上ListView的解决方案（彻底解决复用问题）">
+<meta property="og:url" content="http://yoursite.com/2017/08/01/ScrollView嵌套两个及以上ListView的解决方案（彻底解决复用问题）/index.html">
 <meta property="og:site_name" content="Huaxiao's Blog">
-<meta property="og:description" content="前言使用replaceFirst方法时，出现java.util.regex.PatternSyntaxException错误
-问题原因这个问题起初困扰了我很久，最后经过分析发现使用replaceFirst替换的字符串中，有一个不完整的”(“，然后猜想不会是因为正则表达式的某种原因造成的吧。通过查看replaceFirst的源代码，终于发现了问题的根源：replaceFirst使用了正则表达式
-re">
-<meta property="og:updated_time" content="2017-07-15T14:25:50.000Z">
+<meta property="og:description" content="Huaxiao&apos;s Blog">
+<meta property="og:updated_time" content="2017-08-01T10:44:09.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="replaceFirst与java.util.regex.PatternSyntaxException">
-<meta name="twitter:description" content="前言使用replaceFirst方法时，出现java.util.regex.PatternSyntaxException错误
-问题原因这个问题起初困扰了我很久，最后经过分析发现使用replaceFirst替换的字符串中，有一个不完整的”(“，然后猜想不会是因为正则表达式的某种原因造成的吧。通过查看replaceFirst的源代码，终于发现了问题的根源：replaceFirst使用了正则表达式
-re">
+<meta name="twitter:title" content="ScrollView嵌套两个及以上ListView的解决方案（彻底解决复用问题）">
+<meta name="twitter:description" content="Huaxiao&apos;s Blog">
 
 
 
@@ -113,7 +107,7 @@ re">
   };
 </script>
 
-  <title> replaceFirst与java.util.regex.PatternSyntaxException | Huaxiao's Blog </title>
+  <title> ScrollView嵌套两个及以上ListView的解决方案（彻底解决复用问题） | Huaxiao's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -233,7 +227,7 @@ re">
             
             
               
-                replaceFirst与java.util.regex.PatternSyntaxException
+                ScrollView嵌套两个及以上ListView的解决方案（彻底解决复用问题）
               
             
           </h1>
@@ -245,38 +239,19 @@ re">
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-07-15T22:19:21+08:00" content="2017-07-15">
-              2017-07-15
+            <time itemprop="dateCreated" datetime="2017-08-01T18:44:09+08:00" content="2017-08-01">
+              2017-08-01
             </time>
           </span>
 
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Android/" itemprop="url" rel="index">
-                    <span itemprop="name">Android</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
           
 
           
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2017/07/15/replaceFirst与java-util-regex-PatternSyntaxException/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/07/15/replaceFirst与java-util-regex-PatternSyntaxException/" itemprop="commentsCount"></span>
+                <a href="/2017/08/01/ScrollView嵌套两个及以上ListView的解决方案（彻底解决复用问题）/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/08/01/ScrollView嵌套两个及以上ListView的解决方案（彻底解决复用问题）/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -299,14 +274,7 @@ re">
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>使用<code>replaceFirst</code>方法时，出现<code>java.util.regex.PatternSyntaxException</code>错误</p>
-<h1 id="问题原因"><a href="#问题原因" class="headerlink" title="问题原因"></a>问题原因</h1><p>这个问题起初困扰了我很久，最后经过分析发现使用<code>replaceFirst</code>替换的字符串中，有一个不完整的”(“，然后猜想不会是因为正则表达式的某种原因造成的吧。通过查看<code>replaceFirst</code>的源代码，终于发现了问题的根源：<code>replaceFirst</code>使用了正则表达式</p>
-<h1 id="replaceFirst"><a href="#replaceFirst" class="headerlink" title="replaceFirst"></a>replaceFirst</h1><p>源码如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Replaces the first match for &#123;@code regularExpression&#125; within this string with the given</div><div class="line"> * &#123;@code replacement&#125;.</div><div class="line"> * See &#123;@link Pattern&#125; for regular expression syntax.</div><div class="line"> *</div><div class="line"> * &lt;p&gt;If the same regular expression is to be used for multiple operations, it may be more</div><div class="line"> * efficient to reuse a compiled &#123;@code Pattern&#125;.</div><div class="line"> *</div><div class="line"> * @throws PatternSyntaxException</div><div class="line"> *             if the syntax of the supplied regular expression is not</div><div class="line"> *             valid.</div><div class="line"> * @throws NullPointerException if &#123;@code regularExpression == null&#125;</div><div class="line"> * @see Pattern</div><div class="line"> * @since 1.4</div><div class="line"> */</div><div class="line">public String replaceFirst(String regularExpression, String replacement) &#123;</div><div class="line">    return Pattern.compile(regularExpression).matcher(this).replaceFirst(replacement);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>相信各位看到这里都清楚了</p>
-<h1 id="延伸"><a href="#延伸" class="headerlink" title="延伸"></a>延伸</h1><p>不仅<code>replaceFirst</code>，<code>replaceAll</code>也使用了正则表达式。甚至String的<code>split</code>也是用到了正则表达式，使用的时候需要注意。</p>
-<p>值得一提的是，<code>replace</code>方法没有使用正则表达式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Returns a copy of this string after replacing occurrences of the given &#123;@code char&#125; with another.</div><div class="line"> */</div><div class="line">public String replace(char oldChar, char newChar) &#123;</div><div class="line">    String s = null;</div><div class="line">    int _count = count;</div><div class="line">    boolean copied = false;</div><div class="line">    for (int i = 0; i &lt; _count; ++i) &#123;</div><div class="line">        if (charAt(i) == oldChar) &#123;</div><div class="line">            if (!copied) &#123;</div><div class="line">                s = StringFactory.newStringFromString(this);</div><div class="line">                copied = true;</div><div class="line">            &#125;</div><div class="line">            s.setCharAt(i, newChar);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    return copied ? s : this;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-
+        
       
     </div>
 
@@ -325,32 +293,18 @@ re">
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/tags/Android/" rel="tag">#Android</a>
-          
-            <a href="/tags/replaceFirst/" rel="tag">#replaceFirst</a>
-          
-            <a href="/tags/PatternSyntaxException/" rel="tag">#PatternSyntaxException</a>
-          
-        </div>
-      
 
       
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/07/15/Constraintlayout填坑之ViewStub/" rel="next" title="Constraintlayout填坑之ViewStub">
-                <i class="fa fa-chevron-left"></i> Constraintlayout填坑之ViewStub
+              <a href="/2017/07/17/Builder模式与链式调用/" rel="next" title="Builder模式与链式调用">
+                <i class="fa fa-chevron-left"></i> Builder模式与链式调用
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/07/15/小型创业团队MVP框架实现的新思路/" rel="prev" title="小型创业团队MVP框架实现的新思路">
-                小型创业团队MVP框架实现的新思路 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -399,8 +353,8 @@ re">
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2017/07/15/replaceFirst与java-util-regex-PatternSyntaxException/"
-           data-title="replaceFirst与java.util.regex.PatternSyntaxException" data-url="http://yoursite.com/2017/07/15/replaceFirst与java-util-regex-PatternSyntaxException/">
+      <div class="ds-thread" data-thread-key="2017/08/01/ScrollView嵌套两个及以上ListView的解决方案（彻底解决复用问题）/"
+           data-title="ScrollView嵌套两个及以上ListView的解决方案（彻底解决复用问题）" data-url="http://yoursite.com/2017/08/01/ScrollView嵌套两个及以上ListView的解决方案（彻底解决复用问题）/">
       </div>
     
   </div>
@@ -491,7 +445,7 @@ re">
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#问题原因"><span class="nav-number">2.</span> <span class="nav-text">问题原因</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#replaceFirst"><span class="nav-number">3.</span> <span class="nav-text">replaceFirst</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#延伸"><span class="nav-number">4.</span> <span class="nav-text">延伸</span></a></li></ol></div>
+              <p class="post-toc-empty">此文章未包含目录</p>
             
           </div>
         </section>
