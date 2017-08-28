@@ -1,0 +1,749 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android,Window," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="本文为博主原创文章，转载请注明出处。
+
+前言从问题出发，往往能更明确的找到所求。本文将带着一个个的问题，结合源码，逐步解析Activity、Window、View的三者关系。
+什么地方需要window？
+一句话总结：有视图的地方就需要window
+Activity、Dialog、Toast…
+
+PopupWindow和Dialog有什么区别？两者最根本的区别在于有没有新建一个window，Pop">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从问题出发，解析Activity、Window、View三者关系">
+<meta property="og:url" content="http://yoursite.com/2017/08/28/从问题出发，解析Activity、Window、View三者关系/index.html">
+<meta property="og:site_name" content="Huaxiao's Blog">
+<meta property="og:description" content="本文为博主原创文章，转载请注明出处。
+
+前言从问题出发，往往能更明确的找到所求。本文将带着一个个的问题，结合源码，逐步解析Activity、Window、View的三者关系。
+什么地方需要window？
+一句话总结：有视图的地方就需要window
+Activity、Dialog、Toast…
+
+PopupWindow和Dialog有什么区别？两者最根本的区别在于有没有新建一个window，Pop">
+<meta property="og:image" content="http://7xuvhf.com1.z0.glb.clouddn.com/Fn4thXempKDxNRbFlpxTRrMZn-n6">
+<meta property="og:updated_time" content="2017-08-28T06:06:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从问题出发，解析Activity、Window、View三者关系">
+<meta name="twitter:description" content="本文为博主原创文章，转载请注明出处。
+
+前言从问题出发，往往能更明确的找到所求。本文将带着一个个的问题，结合源码，逐步解析Activity、Window、View的三者关系。
+什么地方需要window？
+一句话总结：有视图的地方就需要window
+Activity、Dialog、Toast…
+
+PopupWindow和Dialog有什么区别？两者最根本的区别在于有没有新建一个window，Pop">
+<meta name="twitter:image" content="http://7xuvhf.com1.z0.glb.clouddn.com/Fn4thXempKDxNRbFlpxTRrMZn-n6">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 从问题出发，解析Activity、Window、View三者关系 | Huaxiao's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Huaxiao's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">Huaxiao's Blog</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                从问题出发，解析Activity、Window、View三者关系
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-28T14:04:44+08:00" content="2017-08-28">
+              2017-08-28
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/08/28/从问题出发，解析Activity、Window、View三者关系/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/08/28/从问题出发，解析Activity、Window、View三者关系/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>本文为博主原创文章，转载请注明出处。</p>
+</blockquote>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>从问题出发，往往能更明确的找到所求。本文将带着一个个的问题，结合源码，逐步解析Activity、Window、View的三者关系。</p>
+<h1 id="什么地方需要window？"><a href="#什么地方需要window？" class="headerlink" title="什么地方需要window？"></a>什么地方需要window？</h1><ul>
+<li>一句话总结：有视图的地方就需要window</li>
+<li>Activity、Dialog、Toast…</li>
+</ul>
+<h1 id="PopupWindow和Dialog有什么区别？"><a href="#PopupWindow和Dialog有什么区别？" class="headerlink" title="PopupWindow和Dialog有什么区别？"></a>PopupWindow和Dialog有什么区别？</h1><p>两者最根本的区别在于有没有新建一个window，PopupWindow没有新建，而是将view加到DecorView；Dialog是新建了一个window，相当于走了一遍Activity中创建window的流程</p>
+<p>PopupWindow的相关源码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">public PopupWindow(View contentView, int width, int height, boolean focusable) &#123;</div><div class="line">    if (contentView != null) &#123;</div><div class="line">        mContext = contentView.getContext();</div><div class="line">        mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    setContentView(contentView);</div><div class="line">    setWidth(width);</div><div class="line">    setHeight(height);</div><div class="line">    setFocusable(focusable);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">private void invokePopup(WindowManager.LayoutParams p) &#123;</div><div class="line">    if (mContext != null) &#123;</div><div class="line">        p.packageName = mContext.getPackageName();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    final PopupDecorView decorView = mDecorView;</div><div class="line">    decorView.setFitsSystemWindows(mLayoutInsetDecor);</div><div class="line"></div><div class="line">    setLayoutDirectionFromAnchor();</div><div class="line"></div><div class="line">    mWindowManager.addView(decorView, p);</div><div class="line"></div><div class="line">    if (mEnterTransition != null) &#123;</div><div class="line">        decorView.requestEnterTransition(mEnterTransition);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>从源码中可以看出，PopupWindow最终是执行了mWindowManager.addView方法，全程没有新建window</p>
+<p>Dialog的相关源码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">Dialog(@NonNull Context context, @StyleRes int themeResId, boolean createContextThemeWrapper) &#123;</div><div class="line">    if (createContextThemeWrapper) &#123;</div><div class="line">        if (themeResId == 0) &#123;</div><div class="line">            final TypedValue outValue = new TypedValue();</div><div class="line">            context.getTheme().resolveAttribute(R.attr.dialogTheme, outValue, true);</div><div class="line">            themeResId = outValue.resourceId;</div><div class="line">        &#125;</div><div class="line">        mContext = new ContextThemeWrapper(context, themeResId);</div><div class="line">    &#125; else &#123;</div><div class="line">        mContext = context;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);</div><div class="line"></div><div class="line">    final Window w = new PhoneWindow(mContext);</div><div class="line">    mWindow = w;</div><div class="line">    w.setCallback(this);</div><div class="line">    w.setOnWindowDismissedCallback(this);</div><div class="line">    w.setWindowManager(mWindowManager, null, null);</div><div class="line">    w.setGravity(Gravity.CENTER);</div><div class="line"></div><div class="line">    mListenersHandler = new ListenersHandler(this);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>很明显，我们看到Dialog执行了window的创建：final Window w = new PhoneWindow(mContext);</p>
+<h1 id="一句话概括三者的基本关系？"><a href="#一句话概括三者的基本关系？" class="headerlink" title="一句话概括三者的基本关系？"></a>一句话概括三者的基本关系？</h1><p>Activity中展示视图元素通过window来实现，window可以理解为一个容器，盛放着一个个的view，用来执行具体的展示工作</p>
+<h1 id="各自是在何时被创建的？"><a href="#各自是在何时被创建的？" class="headerlink" title="各自是在何时被创建的？"></a>各自是在何时被创建的？</h1><p>以Activity举例</p>
+<h2 id="Activity实例的创建"><a href="#Activity实例的创建" class="headerlink" title="Activity实例的创建"></a>Activity实例的创建</h2><p>ActivityThread中执行performLaunchActivity，从而生成了Activity的实例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">private Activity performLaunchActivity(ActivityClientRecord r, Intent customIntent) &#123;</div><div class="line">    ...</div><div class="line">    Activity activity = null;</div><div class="line">    try &#123;</div><div class="line">        java.lang.ClassLoader cl = r.packageInfo.getClassLoader();</div><div class="line">        activity = mInstrumentation.newActivity(</div><div class="line">                cl, component.getClassName(), r.intent);</div><div class="line">        ...</div><div class="line">    &#125; catch (Exception e) &#123;</div><div class="line">        ...</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    try &#123;</div><div class="line">        ...</div><div class="line">        if (activity != null) &#123;</div><div class="line">            ...</div><div class="line">            activity.attach(appContext, this, getInstrumentation(), r.token,</div><div class="line">                    r.ident, app, r.intent, r.activityInfo, title, r.parent,</div><div class="line">                    r.embeddedID, r.lastNonConfigurationInstances, config,</div><div class="line">                    r.referrer, r.voiceInteractor);</div><div class="line">            ...</div><div class="line">        &#125;</div><div class="line">        ...</div><div class="line">    &#125; catch (SuperNotCalledException e) &#123;</div><div class="line">        throw e;</div><div class="line">    &#125; catch (Exception e) &#123;</div><div class="line">        ...</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    return activity;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="Activity中Window的创建"><a href="#Activity中Window的创建" class="headerlink" title="Activity中Window的创建"></a>Activity中Window的创建</h2><p>从上面的performLaunchActivity可以看出，在创建Activity实例的同时，会调用Activity的内部方法attach</p>
+<p>在该方法中完成window的初始化</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">final void attach(Context context, ActivityThread aThread,</div><div class="line">        Instrumentation instr, IBinder token, int ident,</div><div class="line">        Application application, Intent intent, ActivityInfo info,</div><div class="line">        CharSequence title, Activity parent, String id,</div><div class="line">        NonConfigurationInstances lastNonConfigurationInstances,</div><div class="line">        Configuration config, String referrer, IVoiceInteractor voiceInteractor) &#123;</div><div class="line">    ...</div><div class="line"></div><div class="line">    mWindow = new PhoneWindow(this);</div><div class="line">    mWindow.setCallback(this);</div><div class="line">    </div><div class="line">    ...</div><div class="line">    </div><div class="line">    mWindow.setWindowManager(</div><div class="line">            (WindowManager)context.getSystemService(Context.WINDOW_SERVICE),</div><div class="line">            mToken, mComponent.flattenToString(),</div><div class="line">            (info.flags &amp; ActivityInfo.FLAG_HARDWARE_ACCELERATED) != 0);</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="DecorView的创建"><a href="#DecorView的创建" class="headerlink" title="DecorView的创建"></a>DecorView的创建</h2><ul>
+<li>用户执行Activity的setContentView方法，内部是调用PhoneWindow的setContentView方法，在PhoneWindow中完成DecorView的创建</li>
+<li>流程<ul>
+<li>Activity中的setContentView</li>
+<li>PhoneWindow中的setContentView</li>
+<li>PhoneWindow中的installDecor</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">public void setContentView(@LayoutRes int layoutResID) &#123;</div><div class="line">    getWindow().setContentView(layoutResID);</div><div class="line">    initWindowDecorActionBar();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">@Override</div><div class="line">public void setContentView(int layoutResID) &#123;</div><div class="line">    ...</div><div class="line">    if (mContentParent == null) &#123;</div><div class="line">        installDecor();</div><div class="line">    &#125; else if (!hasFeature(FEATURE_CONTENT_TRANSITIONS)) &#123;</div><div class="line">        mContentParent.removeAllViews();</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">private void installDecor() &#123;</div><div class="line">    if (mDecor == null) &#123;</div><div class="line">        mDecor = generateDecor();</div><div class="line">        mDecor.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);</div><div class="line">        mDecor.setIsRootNamespace(true);</div><div class="line">        if (!mInvalidatePanelMenuPosted &amp;&amp; mInvalidatePanelMenuFeatures != 0) &#123;</div><div class="line">            mDecor.postOnAnimation(mInvalidatePanelMenuRunnable);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="Activity中的mDecor和Window里面的mDecor有什么关系？"><a href="#Activity中的mDecor和Window里面的mDecor有什么关系？" class="headerlink" title="Activity中的mDecor和Window里面的mDecor有什么关系？"></a>Activity中的mDecor和Window里面的mDecor有什么关系？</h1><ul>
+<li>两者指向同一个对象，都是DecorView</li>
+<li>Activity中的mDecor是通过ActivityThread中的handleResumeActivity方法来赋值的</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">final void handleResumeActivity(IBinder token,</div><div class="line">        boolean clearHide, boolean isForward, boolean reallyResume) &#123;</div><div class="line">    ...</div><div class="line">    if (r != null) &#123;</div><div class="line">        ...</div><div class="line"></div><div class="line">        if (r.window == null &amp;&amp; !a.mFinished &amp;&amp; willBeVisible) &#123;</div><div class="line">            r.window = r.activity.getWindow();</div><div class="line">            View decor = r.window.getDecorView();</div><div class="line">            ...</div><div class="line">            a.mDecor = decor;</div><div class="line">            ...</div><div class="line">        &#125; else if (!willBeVisible) &#123;</div><div class="line">            ...</div><div class="line">        &#125;</div><div class="line">        ...</div><div class="line">    &#125; else &#123;</div><div class="line">        ...</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="ViewRoot是什么？ViewRootImpl又是什么？"><a href="#ViewRoot是什么？ViewRootImpl又是什么？" class="headerlink" title="ViewRoot是什么？ViewRootImpl又是什么？"></a>ViewRoot是什么？ViewRootImpl又是什么？</h1><ul>
+<li>ViewRoot的实现类是ViewRootImpl，是WindowManagerService和DecorView的纽带</li>
+<li>ViewRoot不是View的根节点</li>
+<li>View的绘制是从ViewRootImpl的performTraversals方法开始的</li>
+</ul>
+<h1 id="ViewRootImpl何时创建？"><a href="#ViewRootImpl何时创建？" class="headerlink" title="ViewRootImpl何时创建？"></a>ViewRootImpl何时创建？</h1><p>当window被装进WindowManager时，完成ViewRootImpl的创建，最终是通过WindowManagerGlobal.addView方法中进行创建的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">public void addView(View view, ViewGroup.LayoutParams params, Display display, Window parentWindow) &#123;</div><div class="line">    ...</div><div class="line">    root = new ViewRootImpl(view.getContext(), display);</div><div class="line"></div><div class="line">    view.setLayoutParams(wparams);</div><div class="line"></div><div class="line">    mViews.add(view);</div><div class="line">    mRoots.add(root);</div><div class="line">    mParams.add(wparams);</div><div class="line">    ...</div><div class="line">    try &#123;</div><div class="line">        root.setView(view, wparams, panelParentView);</div><div class="line">    &#125; catch (RuntimeException e) &#123;</div><div class="line">      ...</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="Activity中的Window何时被装进WindowManager？"><a href="#Activity中的Window何时被装进WindowManager？" class="headerlink" title="Activity中的Window何时被装进WindowManager？"></a>Activity中的Window何时被装进WindowManager？</h1><ul>
+<li>发生在Activity的onResume阶段</li>
+<li>执行顺序<ul>
+<li>ActivityThread中的handleResumeActivity</li>
+<li>Activity中的makeVisible</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">final void handleResumeActivity(IBinder token, boolean clearHide, boolean isForward, boolean reallyResume) &#123;</div><div class="line">    ...</div><div class="line">    if (r != null) &#123;</div><div class="line">        ...</div><div class="line">        // The window is now visible if it has been added, we are not</div><div class="line">        // simply finishing, and we are not starting another activity.</div><div class="line">        if (!r.activity.mFinished &amp;&amp; willBeVisible</div><div class="line">                &amp;&amp; r.activity.mDecor != null &amp;&amp; !r.hideForNow) &#123;</div><div class="line">            ...</div><div class="line">            if (r.activity.mVisibleFromClient) &#123;</div><div class="line">                r.activity.makeVisible();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        ...</div><div class="line">    &#125; else &#123;</div><div class="line">        ...</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">void makeVisible() &#123;</div><div class="line">    if (!mWindowAdded) &#123;</div><div class="line">        ViewManager wm = getWindowManager();</div><div class="line">        wm.addView(mDecor, getWindow().getAttributes());</div><div class="line">        mWindowAdded = true;</div><div class="line">    &#125;</div><div class="line">    mDecor.setVisibility(View.VISIBLE);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="什么是WindowManagerGlobal？WindowManager、WindowManagerGlobal、WindowManagerImpl、WindowManagerPolicy有什么区别？"><a href="#什么是WindowManagerGlobal？WindowManager、WindowManagerGlobal、WindowManagerImpl、WindowManagerPolicy有什么区别？" class="headerlink" title="什么是WindowManagerGlobal？WindowManager、WindowManagerGlobal、WindowManagerImpl、WindowManagerPolicy有什么区别？"></a>什么是WindowManagerGlobal？WindowManager、WindowManagerGlobal、WindowManagerImpl、WindowManagerPolicy有什么区别？</h1><ul>
+<li>WindowManagerGlobal中实现了ViewManager中addView、removeView、updateViewLayout这个三个view相关的方法</li>
+<li>WindowManager是一个接口类，对应的实现类是WindowManagerImpl，该实现类中持有mGlobal对象，这个mGlobal对象就是WindowManagerGlobal，具体的实现交给了WindowManagerGlobal，WindowManagerImpl相当于WindowManagerGlobal的代理类</li>
+<li><p>WindowManagerPolicy提供所有和UI有关的接口，PhoneWindowManager实现了该接口。需要注意的是PhoneWindowManager并不是WindowManager的子类。WindowManagerService中持有mPolicy对象，这个mPolicy就是PhoneWindowManager</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public class WindowManagerService extends IWindowManager.Stub implements Watchdog.Monitor, WindowManagerPolicy.WindowManagerFuncs &#123;  </div><div class="line">    ... </div><div class="line">    final WindowManagerPolicy mPolicy = new PhoneWindowManager();  </div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>下面是Android视图框架图，可以直观的看到window相关的整体设计</p>
+</li>
+</ul>
+<p><img src="http://7xuvhf.com1.z0.glb.clouddn.com/Fn4thXempKDxNRbFlpxTRrMZn-n6" alt="image"></p>
+<h1 id="Window的作用是什么？"><a href="#Window的作用是什么？" class="headerlink" title="Window的作用是什么？"></a>Window的作用是什么？</h1><ul>
+<li>实现了Activity与View的解耦，Activity将视图的全部工作都交给Window来处理</li>
+<li>WindowManager支持对多条View链的管理</li>
+</ul>
+<h1 id="Dialog为什么不能使用Application的Context"><a href="#Dialog为什么不能使用Application的Context" class="headerlink" title="Dialog为什么不能使用Application的Context"></a>Dialog为什么不能使用Application的Context</h1><ul>
+<li>Dialog窗口类型是TYPE_APPLICATION，与Activity一样</li>
+<li>TYPE_APPLICATION要求Token不能为null，Application没有AppWindowToken</li>
+</ul>
+<p>源码分析如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">Dialog(@NonNull Context context, @StyleRes int themeResId, boolean createContextThemeWrapper) &#123;</div><div class="line">    ...</div><div class="line">    mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);</div><div class="line">    ...</div><div class="line">    w.setWindowManager(mWindowManager, null, null);</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public void setWindowManager(WindowManager wm, IBinder appToken, String appName)</div></pre></td></tr></table></figure>
+<p>上面是Dialog的初始化方法，注意setWindowManager方法中，第二个参数是appToken，Dialog初始化默认直接传入的是null，这是与Activity的一个显著区别。此时又会有一个新的疑问，那无论Context是来自Application还是Activity，都是传入null，那为什么Application会报错呢。</p>
+<p>其实，上面的getSystemService也是问题的原因之一。</p>
+<p>我们先看一下Activity中的getSystemService方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">@Override</div><div class="line">public Object getSystemService(@ServiceName @NonNull String name) &#123;</div><div class="line">    if (getBaseContext() == null) &#123;</div><div class="line">        throw new IllegalStateException(</div><div class="line">                &quot;System services not available to Activities before onCreate()&quot;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    if (WINDOW_SERVICE.equals(name)) &#123;</div><div class="line">        return mWindowManager;</div><div class="line">    &#125; else if (SEARCH_SERVICE.equals(name)) &#123;</div><div class="line">        ensureSearchManager();</div><div class="line">        return mSearchManager;</div><div class="line">    &#125;</div><div class="line">    return super.getSystemService(name);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Activity中重写了getSystemService方法，按照Dialog中初始化的代码分析，此时返回的是当前Activity的mWindowManager，这个mWindowManager中存在Activity的Token</p>
+<p>Application中的Context没有重写getSystemService方法，那么在setWindowManager内部，会通过执行createLocalWindowManager方法获得一个WindowManager接口类的实现类WindowManagerImpl，在WindowManagerImpl中mDefaultToken默认也是null</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">public void setWindowManager(WindowManager wm, IBinder appToken, String appName,</div><div class="line">        boolean hardwareAccelerated) &#123;</div><div class="line">    mAppToken = appToken;</div><div class="line">    mAppName = appName;</div><div class="line">    mHardwareAccelerated = hardwareAccelerated</div><div class="line">            || SystemProperties.getBoolean(PROPERTY_HARDWARE_UI, false);</div><div class="line">    if (wm == null) &#123;</div><div class="line">        wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);</div><div class="line">    &#125;</div><div class="line">    mWindowManager = ((WindowManagerImpl)wm).createLocalWindowManager(this);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">public WindowManagerImpl createLocalWindowManager(Window parentWindow) &#123;</div><div class="line">    return new WindowManagerImpl(mDisplay, parentWindow);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>那么为什么appToken是null，就会报错呢？</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Caused by: android.view.WindowManager$BadTokenException: Unable to add window -- token null is not for an application</div><div class="line">    at android.view.ViewRootImpl.setView(ViewRootImpl.java:685)</div><div class="line">    at android.view.WindowManagerGlobal.addView(WindowManagerGlobal.java:342)</div><div class="line">    at android.view.WindowManagerImpl.addView(WindowManagerImpl.java:93)</div><div class="line">    at android.app.Dialog.show(Dialog.java:316)</div></pre></td></tr></table></figure>
+<p>从Logcat中的error信息可以看出，问题是出在了ViewRootImpl的setView方法中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line">public void setView(View view, WindowManager.LayoutParams attrs, View panelParentView) &#123;</div><div class="line">    synchronized (this) &#123;</div><div class="line">        if (mView == null) &#123;</div><div class="line">            ...</div><div class="line">            int res; /* = WindowManagerImpl.ADD_OKAY; */</div><div class="line">            ...</div><div class="line">            try &#123;</div><div class="line">                ...</div><div class="line">                res = mWindowSession.addToDisplay(mWindow, mSeq, mWindowAttributes,</div><div class="line">                        getHostVisibility(), mDisplay.getDisplayId(),</div><div class="line">                        mAttachInfo.mContentInsets, mAttachInfo.mStableInsets,</div><div class="line">                        mAttachInfo.mOutsets, mInputChannel);</div><div class="line">            &#125; catch (RemoteException e) &#123;</div><div class="line">                ...</div><div class="line">            &#125; finally &#123;</div><div class="line">                ...</div><div class="line">            &#125;</div><div class="line">            ...</div><div class="line">            </div><div class="line">            if (res &lt; WindowManagerGlobal.ADD_OKAY) &#123;</div><div class="line">                ...</div><div class="line">                switch (res) &#123;</div><div class="line">                    ...</div><div class="line">                    case WindowManagerGlobal.ADD_NOT_APP_TOKEN:</div><div class="line">                        throw new WindowManager.BadTokenException(</div><div class="line">                                &quot;Unable to add window -- token &quot; + attrs.token</div><div class="line">                                + &quot; is not for an application&quot;);</div><div class="line">                    ...</div><div class="line">                &#125;</div><div class="line">                ...</div><div class="line">            &#125;</div><div class="line">            ...</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>从上述源码中可以看出res在执行完addToDisplay方法后，被置为了一个非法值，从而报错。</p>
+<p>mWindowSession是IWindowSession接口类，IWindowSession的实现类是Session，从Session的源码中我们发现，最终是由WindowManagerService中的addWindow方法对res进行了赋值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">@Override</div><div class="line">public int addToDisplay(IWindow window, int seq, WindowManager.LayoutParams attrs,</div><div class="line">        int viewVisibility, int displayId, Rect outContentInsets, Rect outStableInsets,</div><div class="line">        Rect outOutsets, InputChannel outInputChannel) &#123;</div><div class="line">    return mService.addWindow(this, window, seq, attrs, viewVisibility, displayId,</div><div class="line">            outContentInsets, outStableInsets, outOutsets, outInputChannel);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>下面是addWindow方法的源码，我们看到由于AppWindowToken为null，从而返回了非法值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">public int addWindow(Session session, IWindow client, int seq,</div><div class="line">        WindowManager.LayoutParams attrs, int viewVisibility, int displayId,</div><div class="line">        Rect outContentInsets, Rect outStableInsets, Rect outOutsets,</div><div class="line">        InputChannel outInputChannel) &#123;</div><div class="line">    ...</div><div class="line">    final int type = attrs.type;</div><div class="line"></div><div class="line">    synchronized(mWindowMap) &#123;</div><div class="line">        ...</div><div class="line">        WindowToken token = mTokenMap.get(attrs.token);</div><div class="line">        if (token == null) &#123;</div><div class="line">            ...</div><div class="line">        &#125; else if (type &gt;= FIRST_APPLICATION_WINDOW &amp;&amp; type &lt;= LAST_APPLICATION_WINDOW) &#123;</div><div class="line">            AppWindowToken atoken = token.appWindowToken;</div><div class="line">            if (atoken == null) &#123;</div><div class="line">                Slog.w(TAG, &quot;Attempted to add window with non-application token &quot;</div><div class="line">                      + token + &quot;.  Aborting.&quot;);</div><div class="line">                return WindowManagerGlobal.ADD_NOT_APP_TOKEN;</div><div class="line">            &#125; else if (atoken.removed) &#123;</div><div class="line">                ...</div><div class="line">            &#125;</div><div class="line">            ...</div><div class="line">        &#125; </div><div class="line">        ...</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://www.silencedut.com/2016/08/10/Android%E8%A7%86%E5%9B%BE%E6%A1%86%E6%9E%B6Activity,Window,View,ViewRootImpl%E7%90%86%E8%A7%A3/" target="_blank" rel="external">http://www.silencedut.com/2016/08/10/Android%E8%A7%86%E5%9B%BE%E6%A1%86%E6%9E%B6Activity,Window,View,ViewRootImpl%E7%90%86%E8%A7%A3/</a></li>
+<li><a href="http://www.jianshu.com/p/a533467f5af5" target="_blank" rel="external">http://www.jianshu.com/p/a533467f5af5</a></li>
+<li><a href="https://juejin.im/entry/571338c7c4c9710054cea455" target="_blank" rel="external">https://juejin.im/entry/571338c7c4c9710054cea455</a></li>
+<li><a href="http://www.jianshu.com/p/634cd056b90c" target="_blank" rel="external">http://www.jianshu.com/p/634cd056b90c</a></li>
+<li><a href="http://www.jianshu.com/p/628ac6b68c15" target="_blank" rel="external">http://www.jianshu.com/p/628ac6b68c15</a></li>
+<li><a href="http://blog.csdn.net/jasonwang18/article/details/72319705" target="_blank" rel="external">http://blog.csdn.net/jasonwang18/article/details/72319705</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag">#Android</a>
+          
+            <a href="/tags/Window/" rel="tag">#Window</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/01/ScrollView嵌套两个及以上ListView的解决方案（彻底解决复用问题）/" rel="next" title="ScrollView嵌套两个及以上ListView的解决方案（彻底解决复用问题）">
+                <i class="fa fa-chevron-left"></i> ScrollView嵌套两个及以上ListView的解决方案（彻底解决复用问题）
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/08/28/从问题出发，解析Activity、Window、View三者关系/"
+           data-title="从问题出发，解析Activity、Window、View三者关系" data-url="http://yoursite.com/2017/08/28/从问题出发，解析Activity、Window、View三者关系/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Huaxiao" />
+          <p class="site-author-name" itemprop="name">Huaxiao</p>
+          <p class="site-description motion-element" itemprop="description">Huaxiao's Blog</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#什么地方需要window？"><span class="nav-number">2.</span> <span class="nav-text">什么地方需要window？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PopupWindow和Dialog有什么区别？"><span class="nav-number">3.</span> <span class="nav-text">PopupWindow和Dialog有什么区别？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一句话概括三者的基本关系？"><span class="nav-number">4.</span> <span class="nav-text">一句话概括三者的基本关系？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#各自是在何时被创建的？"><span class="nav-number">5.</span> <span class="nav-text">各自是在何时被创建的？</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Activity实例的创建"><span class="nav-number">5.1.</span> <span class="nav-text">Activity实例的创建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Activity中Window的创建"><span class="nav-number">5.2.</span> <span class="nav-text">Activity中Window的创建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DecorView的创建"><span class="nav-number">5.3.</span> <span class="nav-text">DecorView的创建</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Activity中的mDecor和Window里面的mDecor有什么关系？"><span class="nav-number">6.</span> <span class="nav-text">Activity中的mDecor和Window里面的mDecor有什么关系？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ViewRoot是什么？ViewRootImpl又是什么？"><span class="nav-number">7.</span> <span class="nav-text">ViewRoot是什么？ViewRootImpl又是什么？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ViewRootImpl何时创建？"><span class="nav-number">8.</span> <span class="nav-text">ViewRootImpl何时创建？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Activity中的Window何时被装进WindowManager？"><span class="nav-number">9.</span> <span class="nav-text">Activity中的Window何时被装进WindowManager？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是WindowManagerGlobal？WindowManager、WindowManagerGlobal、WindowManagerImpl、WindowManagerPolicy有什么区别？"><span class="nav-number">10.</span> <span class="nav-text">什么是WindowManagerGlobal？WindowManager、WindowManagerGlobal、WindowManagerImpl、WindowManagerPolicy有什么区别？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Window的作用是什么？"><span class="nav-number">11.</span> <span class="nav-text">Window的作用是什么？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Dialog为什么不能使用Application的Context"><span class="nav-number">12.</span> <span class="nav-text">Dialog为什么不能使用Application的Context</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-number">13.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Huaxiao</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"huaxiaos"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>
