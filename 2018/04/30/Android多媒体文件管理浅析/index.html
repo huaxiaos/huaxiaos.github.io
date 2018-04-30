@@ -1,0 +1,703 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android,多媒体," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="简介Android多媒体文件管理简单来说，有三个部分
+
+扫描：MediaScannerService
+存储：MediaProvider
+查询：MediaStore
+
+MediaScannerService
+值得一提的是，MediaScannerService这类文件，AndroidStudio中不能直接search到，需要去官网查询其源码，这里推荐一个在线查看Android源码的链接http://">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android多媒体文件管理浅析">
+<meta property="og:url" content="http://yoursite.com/2018/04/30/Android多媒体文件管理浅析/index.html">
+<meta property="og:site_name" content="Huaxiao's Blog">
+<meta property="og:description" content="简介Android多媒体文件管理简单来说，有三个部分
+
+扫描：MediaScannerService
+存储：MediaProvider
+查询：MediaStore
+
+MediaScannerService
+值得一提的是，MediaScannerService这类文件，AndroidStudio中不能直接search到，需要去官网查询其源码，这里推荐一个在线查看Android源码的链接http://">
+<meta property="og:updated_time" content="2018-04-30T09:36:59.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android多媒体文件管理浅析">
+<meta name="twitter:description" content="简介Android多媒体文件管理简单来说，有三个部分
+
+扫描：MediaScannerService
+存储：MediaProvider
+查询：MediaStore
+
+MediaScannerService
+值得一提的是，MediaScannerService这类文件，AndroidStudio中不能直接search到，需要去官网查询其源码，这里推荐一个在线查看Android源码的链接http://">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Android多媒体文件管理浅析 | Huaxiao's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Huaxiao's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">Huaxiao's Blog</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Android多媒体文件管理浅析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-04-30T17:35:05+08:00" content="2018-04-30">
+              2018-04-30
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/04/30/Android多媒体文件管理浅析/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/04/30/Android多媒体文件管理浅析/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+              &nbsp; | &nbsp;
+              <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+              <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+              </span>
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>Android多媒体文件管理简单来说，有三个部分</p>
+<ul>
+<li>扫描：MediaScannerService</li>
+<li>存储：MediaProvider</li>
+<li>查询：MediaStore</li>
+</ul>
+<h1 id="MediaScannerService"><a href="#MediaScannerService" class="headerlink" title="MediaScannerService"></a>MediaScannerService</h1><blockquote>
+<p>值得一提的是，MediaScannerService这类文件，AndroidStudio中不能直接search到，需要去官网查询其源码，这里推荐一个在线查看Android源码的链接<a href="http://androidxref.com/" target="_blank" rel="external">http://androidxref.com/</a></p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">public class MediaScannerService extends Service implements Runnable</div><div class="line"></div><div class="line">// 核心方法</div><div class="line">private void scan(String[] directories, String volumeName) &#123;</div><div class="line">    ...</div><div class="line"></div><div class="line">    try &#123;</div><div class="line">        ...</div><div class="line"></div><div class="line">        try &#123;</div><div class="line">            ...</div><div class="line"></div><div class="line">            MediaScanner scanner = createMediaScanner();</div><div class="line">            scanner.scanDirectories(directories, volumeName);</div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            ...</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        ...</div><div class="line"></div><div class="line">    &#125; finally &#123;</div><div class="line">        ...</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>应用级Service，用于媒体文件扫描</p>
+<p>scan是其核心方法，从源码中可以看出，最终是调用了MediaScanner的scanDirectories方法</p>
+<h1 id="MediaScannerReceiver"><a href="#MediaScannerReceiver" class="headerlink" title="MediaScannerReceiver"></a>MediaScannerReceiver</h1><p>与MediaScannerService配套的BroastReceiver</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">@Override</div><div class="line">public void onReceive(Context context, Intent intent) &#123;</div><div class="line">    final String action = intent.getAction();</div><div class="line">    final Uri uri = intent.getData();</div><div class="line">    if (Intent.ACTION_BOOT_COMPLETED.equals(action)) &#123;</div><div class="line">        // Scan both internal and external storage</div><div class="line">        scan(context, MediaProvider.INTERNAL_VOLUME);</div><div class="line">        scan(context, MediaProvider.EXTERNAL_VOLUME);</div><div class="line"></div><div class="line">    &#125; else &#123;</div><div class="line">        if (uri.getScheme().equals(&quot;file&quot;)) &#123;</div><div class="line">        	// 省略...</div><div class="line">            if (Intent.ACTION_MEDIA_MOUNTED.equals(action)) &#123;</div><div class="line">                // scan whenever any volume is mounted</div><div class="line">                scan(context, MediaProvider.EXTERNAL_VOLUME);</div><div class="line">            &#125; else if (Intent.ACTION_MEDIA_SCANNER_SCAN_FILE.equals(action) &amp;&amp;</div><div class="line">                    path != null &amp;&amp; path.startsWith(externalStoragePath + &quot;/&quot;)) &#123;</div><div class="line">                scanFile(context, path);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>从onReceive方法中可以看出，MediaScannerReceiver执行scan的时机有三种</p>
+<ul>
+<li>启动完毕，扫描内部存储和外部存储</li>
+<li>sdcard挂载完毕，扫描外部存储</li>
+<li>扫描单个文件</li>
+</ul>
+<h1 id="MediaScanner"><a href="#MediaScanner" class="headerlink" title="MediaScanner"></a>MediaScanner</h1><p>具体执行scan动作的类</p>
+<h1 id="MediaScannerProvider"><a href="#MediaScannerProvider" class="headerlink" title="MediaScannerProvider"></a>MediaScannerProvider</h1><p>ContentProvider用于保存查询结果，结果由数据库保存</p>
+<p>以外部存储为例，数据库的路径为/data/data/com.android.providers.media/databases/external.db</p>
+<h1 id="MediaStore"><a href="#MediaStore" class="headerlink" title="MediaStore"></a>MediaStore</h1><p>MediaStore是面向应用的入口，作用了是为了便于用户查询已经扫描过的数据</p>
+<p>MediaStore中的资源有四类</p>
+<ul>
+<li>MediaStore.Files</li>
+<li>MediaStore.Audio</li>
+<li>MediaStore.Images</li>
+<li>MediaStore.Video</li>
+</ul>
+<h1 id="媒体库查询"><a href="#媒体库查询" class="headerlink" title="媒体库查询"></a>媒体库查询</h1><h2 id="核心方法"><a href="#核心方法" class="headerlink" title="核心方法"></a>核心方法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">public final @Nullable Cursor query(@RequiresPermission.Read </div><div class="line">		@NonNull Uri uri, </div><div class="line">		@Nullable String[] projection, </div><div class="line">		@Nullable String selection, </div><div class="line">		@Nullable String[] selectionArgs, </div><div class="line">		@Nullable String sortOrder)</div></pre></td></tr></table></figure>
+<h2 id="Uri-uri"><a href="#Uri-uri" class="headerlink" title="Uri uri"></a>Uri uri</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Uri uri = MediaStore.Video.Media.INTERNAL_CONTENT_URI;</div><div class="line">Uri uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;</div></pre></td></tr></table></figure>
+<p>Uri总共有两种，分别对应内部存储和外部存储</p>
+<h2 id="String-projection"><a href="#String-projection" class="headerlink" title="String[] projection"></a>String[] projection</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">String[] mediaColumns = &#123;</div><div class="line">	        MediaStore.Video.Media.DATA,</div><div class="line">	        MediaStore.Video.Media.SIZE,</div><div class="line">	        MediaStore.Video.Media.DATE_MODIFIED,</div><div class="line">	        MediaStore.Video.Media.DURATION&#125;;</div></pre></td></tr></table></figure>
+<p>用于指定查询后，返回给用户的媒体信息</p>
+<h2 id="String-selection-amp-String-selectionArgs"><a href="#String-selection-amp-String-selectionArgs" class="headerlink" title="String selection &amp; String[] selectionArgs"></a>String selection &amp; String[] selectionArgs</h2><p>这两个是可选项，用户可以通过这两个参数，定制化查询条件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">String selection = MediaStore.Video.Media.MIME_TYPE + &quot;=? or &quot;</div><div class="line">            + MediaStore.Video.Media.MIME_TYPE + &quot;=? or &quot;</div><div class="line">            + MediaStore.Video.Media.MIME_TYPE + &quot;=? or &quot;</div><div class="line">            + MediaStore.Video.Media.MIME_TYPE + &quot;=? or &quot;</div><div class="line">            + MediaStore.Video.Media.MIME_TYPE + &quot;=?&quot;</div><div class="line"></div><div class="line">String[] selectionArgs = new String[]&#123;&quot;video/mp4&quot;, &quot;video/avi&quot;, &quot;video/quicktime&quot;, &quot;video/webm&quot;, &quot;video/x-ms-wmv&quot;&#125;</div></pre></td></tr></table></figure>
+<p>需要注意的是，selection中的条件和selectionArgs数组中的类型，需要是一一对应的，否则会发生异常</p>
+<h2 id="String-sortOrder"><a href="#String-sortOrder" class="headerlink" title="String sortOrder"></a>String sortOrder</h2><p>查询的排序方式</p>
+<h2 id="nomedia"><a href="#nomedia" class="headerlink" title=".nomedia"></a>.nomedia</h2><p>文件夹中新建一个.nomedia的空文件，会屏蔽掉系统默认的媒体库扫描。遇到带有该文件的文件夹，只能通过文件遍历的方式进行扫描</p>
+<h2 id="MIME-TYPE"><a href="#MIME-TYPE" class="headerlink" title="MIME_TYPE"></a>MIME_TYPE</h2><p>需要注意的是MIMETYPE不一定和文件的扩展名一致，比如mov格式的文件，MIMETYPE为video/quicktime等等</p>
+<h1 id="新增视频资源并通知手机相册"><a href="#新增视频资源并通知手机相册" class="headerlink" title="新增视频资源并通知手机相册"></a>新增视频资源并通知手机相册</h1><h2 id="基本方法"><a href="#基本方法" class="headerlink" title="基本方法"></a>基本方法</h2><p>发送广播，通知媒体库刷新</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);</div><div class="line">intent.setData(Uri.fromFile(new File(filePath)));</div><div class="line">context.sendBroadcast(intent);</div></pre></td></tr></table></figure>
+<p>也可以使用直接插入媒体库数据库的方法来实现（但这两种方法不能同时使用，会导致媒体库中出现重复的数据）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">ContentValues values = new ContentValues(4);</div><div class="line">values.put(MediaStore.Video.Media.TITLE, &quot;&quot;);</div><div class="line">values.put(MediaStore.Video.Media.MIME_TYPE, minetype);</div><div class="line">values.put(MediaStore.Video.Media.DATA, path);</div><div class="line">values.put(MediaStore.Video.Media.DURATION, duration_int);</div><div class="line">context.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);</div></pre></td></tr></table></figure>
+<p>插入数据库的这种方法，这边博文中有详细介绍<a href="http://blog.csdn.net/chendong_/article/details/52290329" target="_blank" rel="external">blog</a></p>
+<h2 id="机型适配"><a href="#机型适配" class="headerlink" title="机型适配"></a>机型适配</h2><p>部分机型上述两种方法都不能实现实时刷新，考虑可能是第三方ROM的改动导致的，将目录设置为<code>/sdcard/DCIM/Camera</code>可以解决大部分机型的问题，但vivo和魅族的手机仍旧不能刷新，vivo的地址应该为<code>/sdcard/相机</code>，魅族的地址应该为<code>/sdcard/DCIM/Video</code></p>
+<p>下面给出一个获取输出地址的方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">public static String getVideoOutputDir() &#123;</div><div class="line">    String sdcardPath = Environment.getExternalStorageDirectory().getPath() + File.separator;</div><div class="line">    String brand = SystemUtil.getDeviceBrand();</div><div class="line"></div><div class="line">    if (TextUtils.isEmpty(brand)) &#123;</div><div class="line">        return sdcardPath + &quot;DCIM&quot; + File.separator + &quot;Camera&quot;;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    brand = brand.toLowerCase();</div><div class="line">    if (brand.contains(&quot;vivo&quot;)) &#123;</div><div class="line">        return sdcardPath + &quot;相机&quot;;</div><div class="line">    &#125; else if (brand.contains(&quot;meizu&quot;)) &#123;</div><div class="line">        return sdcardPath + &quot;DCIM&quot; + File.separator + &quot;Video&quot;;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    return sdcardPath + &quot;DCIM&quot; + File.separator + &quot;Camera&quot;;</div><div class="line">&#125;</div><div class="line"></div><div class="line">public static String getDeviceBrand() &#123;</div><div class="line">    return android.os.Build.BRAND;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>值得一提的是，如果想删除相册中的某个资源文件，OPPO的某些机型（ColorOS 3.1系统），会弹窗提示：删除图库中的照片和视频权限申请，需要用户手动去确认删除。这个没有特别好的办法</p>
+</blockquote>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="https://my.oschina.net/youranhongcha/blog/787223" target="_blank" rel="external">https://my.oschina.net/youranhongcha/blog/787223</a></li>
+<li><a href="https://droidyue.com/blog/2014/07/12/scan-media-files-in-android-chinese-edition/" target="_blank" rel="external">https://droidyue.com/blog/2014/07/12/scan-media-files-in-android-chinese-edition/</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag">#Android</a>
+          
+            <a href="/tags/多媒体/" rel="tag">#多媒体</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/28/从问题出发，解析Activity、Window、View三者关系/" rel="next" title="从问题出发，解析Activity、Window、View三者关系">
+                <i class="fa fa-chevron-left"></i> 从问题出发，解析Activity、Window、View三者关系
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2018/04/30/Android多媒体文件管理浅析/"
+           data-title="Android多媒体文件管理浅析" data-url="http://yoursite.com/2018/04/30/Android多媒体文件管理浅析/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Huaxiao" />
+          <p class="site-author-name" itemprop="name">Huaxiao</p>
+          <p class="site-description motion-element" itemprop="description">Huaxiao's Blog</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MediaScannerService"><span class="nav-number">2.</span> <span class="nav-text">MediaScannerService</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MediaScannerReceiver"><span class="nav-number">3.</span> <span class="nav-text">MediaScannerReceiver</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MediaScanner"><span class="nav-number">4.</span> <span class="nav-text">MediaScanner</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MediaScannerProvider"><span class="nav-number">5.</span> <span class="nav-text">MediaScannerProvider</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MediaStore"><span class="nav-number">6.</span> <span class="nav-text">MediaStore</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#媒体库查询"><span class="nav-number">7.</span> <span class="nav-text">媒体库查询</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#核心方法"><span class="nav-number">7.1.</span> <span class="nav-text">核心方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Uri-uri"><span class="nav-number">7.2.</span> <span class="nav-text">Uri uri</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#String-projection"><span class="nav-number">7.3.</span> <span class="nav-text">String[] projection</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#String-selection-amp-String-selectionArgs"><span class="nav-number">7.4.</span> <span class="nav-text">String selection & String[] selectionArgs</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#String-sortOrder"><span class="nav-number">7.5.</span> <span class="nav-text">String sortOrder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#nomedia"><span class="nav-number">7.6.</span> <span class="nav-text">.nomedia</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MIME-TYPE"><span class="nav-number">7.7.</span> <span class="nav-text">MIME_TYPE</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#新增视频资源并通知手机相册"><span class="nav-number">8.</span> <span class="nav-text">新增视频资源并通知手机相册</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本方法"><span class="nav-number">8.1.</span> <span class="nav-text">基本方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#机型适配"><span class="nav-number">8.2.</span> <span class="nav-text">机型适配</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-number">9.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Huaxiao</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i> 访问人数<span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i> 总访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>次</span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"huaxiaos"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>
